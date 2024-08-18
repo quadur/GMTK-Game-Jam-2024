@@ -7,7 +7,7 @@ def scene_end_of_day_tick args
   end
 
 
-  change_day args if args.inputs.keyboard.key_down.r && !args.state.input_locked
+  change_day args if args.inputs.keyboard.key_down.space && !args.state.input_locked
 end
 
 def change_day args
@@ -19,7 +19,8 @@ def change_day args
 
   args.state.day.num += 1
   args.state.failstate = :out_of_time if args.state.day.num > 7
-  queue_souls args 
+  queue_souls args
+  draw_hand args
 
   scene_change args, :scale
 end
