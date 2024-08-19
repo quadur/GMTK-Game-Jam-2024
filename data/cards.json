@@ -1,0 +1,137 @@
+[
+  {
+    "god_id": 0,
+    "weight": 0,
+    "tier": 1
+  },
+  {
+    "god_id": 0,
+    "weight": 1,
+    "tier": 2
+  },
+  {
+    "god_id": 0,
+    "weight": -1,
+    "tier": 2
+  },
+  {
+    "god_id": 0,
+    "weight": 2,
+    "tier": 3
+  },
+  {
+    "god_id": 0,
+    "weight": -2,
+    "tier": 3
+  },
+  {
+    "god_id": 0,
+    "weight": 3,
+    "tier": 0
+  },
+  {
+    "god_id": -1,
+    "weight": -3,
+    "tier": 0
+  },
+  {
+    "god_id": 1,
+    "weight": 0,
+    "tier": 1
+  },
+  {
+    "god_id": 1,
+    "weight": 1,
+    "tier": 2
+  },
+  {
+    "god_id": 1,
+    "weight": -1,
+    "tier": 2
+  },
+  {
+    "god_id": 1,
+    "weight": 2,
+    "tier": 3
+  },
+  {
+    "god_id": 1,
+    "weight": -2,
+    "tier": 3
+  },
+  {
+    "god_id": 1,
+    "weight": 3,
+    "tier": 0
+  },
+  {
+    "god_id": -1,
+    "weight": -3,
+    "tier": 0
+  },
+  {
+    "god_id": 2,
+    "weight": 0,
+    "tier": 1
+  },
+  {
+    "god_id": 2,
+    "weight": 1,
+    "tier": 2
+  },
+  {
+    "god_id": 2,
+    "weight": -1,
+    "tier": 2
+  },
+  {
+    "god_id": 2,
+    "weight": 2,
+    "tier": 3
+  },
+  {
+    "god_id": 2,
+    "weight": -2,
+    "tier": 3
+  },
+  {
+    "god_id": -1,
+    "weight": 3,
+    "tier": 0
+  },
+  {
+    "god_id": 2,
+    "weight": -3,
+    "tier": 0
+  },
+  {
+    "god_id": 3,
+    "weight": 0,
+    "tier": 1
+  },
+  {
+    "god_id": 3,
+    "weight": 1,
+    "tier": 2
+  },
+  {
+    "god_id": 3,
+    "weight": -1,
+    "tier": 2
+  },
+  {
+    "god_id": 3,
+    "weight": 2,
+    "tier": 3
+  },
+  {
+    "god_id": 3,
+    "weight": -2,
+    "tier": 3
+  },
+  {
+    "god_id": -1,
+    "weight": 3,
+    "tier": 0
+  }
+]

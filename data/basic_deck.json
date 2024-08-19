@@ -1,10 +1,10 @@
 [
-	{"god_id": -1, "weight": 1, "text": "+1"},
-	{"god_id": -1, "weight": 1, "text": "+1"},
-	{"god_id": -1, "weight": -1, "text": "-1"},
-	{"god_id": -1, "weight": -1, "text": "-1"},
-	{"god_id": -1, "weight": 2, "text": "+2"},
-	{"god_id": -1, "weight": -2, "text": "-2"},
-	{"god_id": -1, "weight": 3, "text": "+3"},
-	{"god_id": -1, "weight": -3, "text": "-3"}
+	{"god_id": -1, "weight": 1, "text": "+1", "tier": 0},
+	{"god_id": -1, "weight": 1, "text": "+1", "tier": 0},
+	{"god_id": -1, "weight": -1, "text": "-1", "tier": 0},
+	{"god_id": -1, "weight": -1, "text": "-1", "tier": 0},
+	{"god_id": -1, "weight": 2, "text": "+2", "tier": 0},
+	{"god_id": -1, "weight": -2, "text": "-2", "tier": 0},
+	{"god_id": -1, "weight": 3, "text": "+3", "tier": 0},
+	{"god_id": -1, "weight": -3, "text": "-3", "tier": 0}
 ]

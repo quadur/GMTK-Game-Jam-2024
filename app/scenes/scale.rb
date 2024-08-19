@@ -13,15 +13,17 @@ def scene_scale_tick args
 
   args.outputs.labels << [10, 710, "framerate: #{args.gtk.current_framerate.round}"]
   args.outputs.labels << [300, 710, "Day: #{args.state.day.num}"]
-  args.outputs.labels << [10, 710-30*1, "current soul: #{args.state.current_soul&.name}, w: #{args.state.current_soul&.weight}, aff_chng: #{args.state.current_soul&.affinity}, all: #{args.state.current_soul&.alignment}"]
-  args.outputs.labels << [10, 710-30*2, "souls left: #{args.state.souls.count}"]
-  args.outputs.labels << [10, 710-30*3, "souls: #{args.state.souls}"]
-  args.outputs.labels << [10, 710-30*4, "Time left (s): #{args.state.day.time}"]
+  args.outputs.labels << [10, 710-30*1, "souls left: #{args.state.souls.count}"]
+  args.outputs.labels << [10, 710-30*2, "Time left (s): #{args.state.day.time}"]
+
+  args.outputs.sprites << args.state.scale_buttons
+  args.outputs.labels << args.state.scale_buttons.map{|b| b.center.merge(text: b.text, r: 255, g: 255, b: 255, anchor_x: 0.5, anchor_y: 0.5) }
+
 
   4.times do |i|
     afterlife = args.state.afterlife[i]
     args.outputs.labels << [10, 200+100*i+40, "#{afterlife.name}: #{afterlife.threshold}", size_enum: -3]
-    args.outputs.labels << [10, 200+100*i+20, "#{afterlife.souls.map{|s| {s[:name] => {w: s[:weight], aff_chng: s[:aff_change], a: s[:alignment], aff: s[:affinity]}}}}", size_enum: -3]
+    args.outputs.labels << [10, 200+100*i+20, "#{afterlife.souls.count}", size_enum: -3]
   end
 
   args.state.cards_rect_active = args.state.cards_rect.each_with_index.map { |r, idx| r.merge(path: :solid, r: 52, g: 52, b: 52).merge(args.state.hand[idx].to_h).merge({idx: idx})}
@@ -34,12 +36,28 @@ def scene_scale_tick args
                                                                                         anchor_x: 0.5,
                                                                                         anchor_y: 0.5) }
 
-  #args.outputs.primitives << args.layout.debug_primitives
+#  args.outputs.primitives << args.layout.debug_primitives
 
 end
 
 def starting_state args
   args.state.scene ||= :scale
+
+  args.state.scale_buttons ||= []
+  args.state.scale_buttons << args.layout.rect(row: 11, col: 1, w: 5, h: 1).merge(path: :solid, r: 52, g: 73, b: 94, a: 255).merge(type: :change_scene, target: :npc)
+  args.state.scale_buttons << args.layout.rect(row: 11, col: 18, w: 5, h: 1).merge(path: :solid, r: 52, g: 73, b: 94, a: 255).merge(type: :change_scene, target: :overworld, text: 'GODS')
+
+
+  args.state.npc_buttons ||= []
+  args.state.npc_labels ||= []
+  args.state.npc_buttons << args.layout.rect(row: 11, col: 1, w: 3, h: 1).merge(path: :solid, r: 52, g: 73, b: 94, a: 255).merge(type: :change_scene, target: :scale, text: 'Back')
+  args.state.npc_labels << args.state.npc_buttons.map{|b| b.center.merge(text: b.text, r: 255, g: 255, b: 255, anchor_x: 0.5, anchor_y: 0.5) } 
+
+  args.state.overworld_buttons ||= []
+  args.state.overworld_labels ||= []
+  args.state.overworld_buttons << args.layout.rect(row: 11, col: 1, w: 3, h: 1).merge(path: :solid, r: 52, g: 73, b: 94, a: 255).merge(type: :change_scene, target: :scale, text: 'Back')
+  args.state.overworld_labels << args.state.overworld_buttons.map{|b| b.center.merge(text: b.text, r: 255, g: 255, b: 255, anchor_x: 0.5, anchor_y: 0.5) } 
+
 
   args.state.scale.left ||= {
     x: 400,
@@ -151,6 +169,7 @@ def starting_state args
   queue_souls args
 
   args.state.deck ||= BASE_DECK.copy
+  args.state.card_list ||= CARD_LIST.copy.shuffle
   shuffle_deck args
   args.state.hand ||= []
   args.state.discard ||= []
@@ -216,7 +235,7 @@ def generate_soul args
   
   (1+rand(4)).times { soul.deeds << ((1+rand(3)) * (rand(2).odd? ? -1 : 1) )}
 
-  soul.name += " #{rand(1000)}"
+  soul.name = NAMES.sample
   soul.weight = soul.deeds.sum
   soul.px_weight = soul.weight * PX_WEIGHT_MOD
 
@@ -235,6 +254,10 @@ def shift_soul args
     args.state.current_soul = args.state.souls.shift
     args.state.scale.target_value = args.state.current_soul.px_weight.round
   end
+  
+  name = args.state.current_soul.nil? ? 'none' : args.state.current_soul.name
+  args.state.scale_buttons.find {|b| b.type == :change_scene && b.target == :npc}.text = "Details: #{name}"
+
 end
 
 def release_soul args
@@ -243,7 +266,10 @@ def release_soul args
     soul.aff_change = soul.affinity[afterlife.god_id] 
     afterlife.souls << soul
   end
+
   args.state.current_soul = nil
+  name = args.state.current_soul.nil? ? 'none' : args.state.current_soul.name
+  args.state.scale_buttons.find {|b| b.type == :change_scene && b.target == :npc}.text = "Details: #{name}"
   reset_scales args
   draw_hand args
 end
@@ -263,20 +289,33 @@ def draw_hand args
   if (hand_diff = max_hand_size - hand_size) > 0
     if hand_diff >= args.state.deck.count
       args.state.deck.unshift *args.state.discard.shuffle
+      args.state.discard = []
     end
     
     hand_diff.times do 
       card = args.state.deck.pop 
-      card_color = case card.god_id
-                   when 0
-                   when 1
-                   when 2 
-                   when 3          
-                   else 
-                     { r: 147, g: 149, b: 151 }
-                   end
+      card_color = get_card_color card
       args.state.hand << card.merge(card_color).merge({type: :card})
     end
+  end
+end
+
+def get_card_color card
+  get_color card.god_id
+end
+
+def get_color god_id
+  case god_id
+  when 3
+    { r: 182, g: 215, b: 168 }
+  when 2
+    { r: 111, g: 168, b: 220 }
+  when 1 
+    { r: 221, g: 126, b: 107 }
+  when 0 
+    { r: 166, g: 77, b: 121 }
+  else 
+    { r: 147, g: 149, b: 151 }
   end
 end
 
@@ -297,6 +336,9 @@ def check_day_clock args
   if args.state.day.time <= 0 || (args.state.souls.none? && args.state.current_soul.nil?)
     resolve_day args
     reset_scale_scene args
+    prep_deck_rect args
+    prep_new_cards args
+    prep_new_cards_rect args
     scene_change args, :end_of_day
   end
 end
@@ -305,12 +347,16 @@ def resolve_day args
   args.state.afterlife.each do |af|
     if (god = args.state.gods.find { |g| g.god_id == af.god_id })
       god.power_diff = af.souls.sum {|s| s.aff_change }
+      god.power_diff += args.state.hand.select{|c| c.god_id == god.god_id }.sum(&:weight)
+
       god.power += god.power_diff 
       
       god.happ_diff = af.souls.count {|s| s.alignment.include?(god.god_id)}
       god.happiness += god.happ_diff
     end
   end
+
+  reset_deck args
 end
 
 def reset_scale_scene args
@@ -328,7 +374,6 @@ def reset_scale_scene args
   args.state.afterlife.each do |af|
     af.souls = []
   end
-  args.state.hand = []
 end
 
 def queue_souls args
@@ -347,15 +392,60 @@ end
 
 def check_mouse_events args
   if args.inputs.mouse.click
-    if (event = args.geometry.find_intersect_rect args.inputs.mouse, args.state.cards_rect_active)
+    interactables = case args.state.scene
+                    when :scale
+                      args.state.cards_rect_active + args.state.scale_buttons
+                    when :end_of_day
+                      args.state.new_cards_rect + args.state.deck_cards_rect
+                    when :npc
+                      args.state.npc_buttons
+                    when :overworld
+                      args.state.overworld_buttons
+                    end
+    interactables += [args.state.audio_button]
+    if (event = args.geometry.find_intersect_rect args.inputs.mouse, interactables)
       case event.type
       when :card
         if args.state.current_soul
           args.state.current_soul.weight += event.weight
-          args.state.scale.target_value += event.weight * PX_WEIGHT_MOD
+          args.state.scale.target_value += (event.weight * PX_WEIGHT_MOD).round
+          
+          if event.god_id > -1
+              enemy_id = case event.god_id 
+                         when 0
+                           2
+                         when 1
+                           3
+                         when 2
+                           0
+                         when 3
+                           1
+                         end
+
+              args.state.current_soul.alignment |= [event.god_id] unless args.state.current_soul.alignment.delete(enemy_id)
+          end
+
           args.state.discard << args.state.hand.delete_at(event.idx)
         end
+      when :new_card, :deck_card
+        alpha = ( event.a == 255 ? 100 : 255)
+        if event.selected 
+          args.state.free_slots += 1
+          event.merge!(a: alpha, selected: false)
+        elsif !event.selected && args.state.free_slots > 0
+          args.state.free_slots -= 1
+          event.merge!(a: alpha, selected: true)
+        end
+      when :change_scene
+        scene_change args, event.target
+      when :sound
+        change_volume args, event
       end
     end
   end
+end
+
+def reset_deck args
+  args.state.deck += args.state.hand + args.state.discard
+  args.state.deck = args.state.deck.sort_by(&:weight).reverse
 end
